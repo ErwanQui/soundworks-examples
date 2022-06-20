@@ -84,23 +84,60 @@ class PlayerExperience extends AbstractExperience {
     };
 
 
-    this.globals.subscribe(updates => {
-      this.updateEngines();
-      this.render();
-    });
-    this.updateEngines();
+    // this.globals.subscribe(updates => {
+    //   this.updateEngines();
+    //   this.render();
+    // });
+    // this.updateEngines();
+    // setTimeout(() => {
+    //   this.updateEngines();
+    //   this.render();
+    // })
+
+    this.playing = false;
+    this.stop = true;
+    this.initiate = true;
 
     window.addEventListener('resize', () => this.render());
 
     this.render();
   }
 
+  PlayPause() {
+    // if (this.playing == undefined) {console.log("initiate"); this.playing = false}
+    // else {
+      this.stop = !this.stop;
+      console.log("playpause")
+      this.playing = !this.playing;
+      if (!this.stop) {
+        this.timer = setTimeout(() => {
+          this.updateEngines();
+          this.render();
+        }, 5000);
+      }
+      else {
+        console.log("wep")
+        clearTimeout(this.timer);
+        this.updateEngines();
+        this.render();
+      }
+    // }
+    //   // setTimeout(() => {
+    //   this.updateEngines();
+    //   this.render();
+    // })
+    
+
+  }
+
   updateEngines() {
-    if (this.globals.get('enabled')) {
+    if (this.playing) {
+      console.log(this.playing)
       const nextTime = Math.ceil(this.sync.getSyncTime());
       this.scheduler.add(this.metroAudio, nextTime);
       this.scheduler.add(this.metroVisual, nextTime);
-    } else {
+    }
+    else {
       if (this.scheduler.has(this.metroAudio) && this.scheduler.has(this.metroVisual)) {
         this.scheduler.remove(this.metroAudio);
         this.scheduler.remove(this.metroVisual);
@@ -121,14 +158,20 @@ class PlayerExperience extends AbstractExperience {
           readonly
         ></sc-text>
         <sc-toggle
-          ?active="${this.globals.get('enabled')}"
-          @change="${e => this.globals.set({ enabled: e.detail.value})}"
-          readonly
+id="tets"          readonly
         ></sc-toggle>
         <sc-bang id="beat-${this.client.id}"></sc-bang>
       </div>
       </div>
     `, this.$container);
+if (this.initiate) {
+    var beginButton = document.getElementById("tets")
+    beginButton.addEventListener("change", () => {
+      console.log("bonjuo")
+this.PlayPause();
+    })
+    this.initiate = false;
+  }
   }
 }
 
